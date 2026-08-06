@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Admin\UserGroupController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\SidebarController;
 use App\Http\Controllers\Api\SpaceController;
 use App\Http\Controllers\Api\SpaceInvitationController;
 use App\Http\Controllers\Api\TransactionController;
@@ -44,10 +46,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transactions/withdrawal', [TransactionController::class, 'storeWithdrawal']);
     Route::post('/transactions/withdraw', [TransactionController::class, 'storeWithdrawal']);
     Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/me/sidebar', [SidebarController::class, 'me']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/ping', function () {
         return response()->json(['message' => 'admin ok']);
     });
+
+    Route::get('/sidebar-menus', [UserGroupController::class, 'menus']);
+    Route::get('/users', [UserGroupController::class, 'users']);
+    Route::put('/users/{user}/group', [UserGroupController::class, 'assignUser']);
+
+    Route::get('/user-groups', [UserGroupController::class, 'index']);
+    Route::post('/user-groups', [UserGroupController::class, 'store']);
+    Route::get('/user-groups/{userGroup}', [UserGroupController::class, 'show']);
+    Route::put('/user-groups/{userGroup}', [UserGroupController::class, 'update']);
+    Route::delete('/user-groups/{userGroup}', [UserGroupController::class, 'destroy']);
+    Route::put('/user-groups/{userGroup}/menus', [UserGroupController::class, 'syncMenus']);
 });
