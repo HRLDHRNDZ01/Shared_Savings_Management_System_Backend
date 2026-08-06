@@ -6,7 +6,8 @@ RUN apt-get update \
         unzip \
         libpq-dev \
         libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip \
+        libicu-dev \
+    && docker-php-ext-install pdo pdo_pgsql zip intl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -18,7 +19,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 
 COPY . .
 RUN composer dump-autoload --optimize \
+    && php artisan package:discover --ansi \
     && chmod +x bin/render-start.sh bin/render-build.sh \
+    && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache
 
