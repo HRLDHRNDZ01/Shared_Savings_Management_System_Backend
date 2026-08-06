@@ -7,11 +7,11 @@ databases:
 services:
   - type: web
     name: ssms-api
-    runtime: php
+    runtime: docker
     plan: free
     region: singapore
-    buildCommand: chmod +x bin/render-build.sh bin/render-start.sh && ./bin/render-build.sh
-    startCommand: ./bin/render-start.sh
+    dockerfilePath: ./Dockerfile
+    dockerCommand: ./bin/render-start.sh
     healthCheckPath: /api/health
     envVars:
       - key: APP_NAME
