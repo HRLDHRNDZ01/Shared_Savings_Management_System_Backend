@@ -8,6 +8,7 @@ use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Requests\Api\UpdateProfileRequest;
 use App\Models\User;
+use App\Models\UserGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,12 +18,18 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request): JsonResponse
     {
+        $defaultGroupId = UserGroup::query()
+            ->where('name', 'Standard User')
+            ->where('is_active', true)
+            ->value('user_group_id');
+
         $user = User::create([
             'name' => $request->string('name')->toString(),
             'email' => $request->string('email')->toString(),
             'contact_number' => $request->input('contact_number'),
             'password' => $request->string('password')->toString(),
             'role' => Role::User,
+            'user_group_id' => $defaultGroupId,
         ]);
 
         $token = $user->createToken('api')->plainTextToken;
@@ -30,7 +37,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Registered successfully.',
             'data' => [
-                'user' => $user,
+                'user' => $user->load('userGroup:user_group_id,name'),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
@@ -52,7 +59,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Logged in successfully.',
             'data' => [
-                'user' => $user,
+                'user' => $user->load('userGroup:user_group_id,name'),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
@@ -62,7 +69,7 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json([
-            'data' => $request->user(),
+            'data' => $request->user()->load('userGroup:user_group_id,name'),
         ]);
     }
 

@@ -4,11 +4,14 @@ namespace Tests\Feature\Api;
 
 use App\Enums\SpaceMemberRole;
 use App\Enums\SpaceType;
+use App\Events\InvitationCreated;
+use App\Events\InvitationUpdated;
 use App\Models\Space;
 use App\Models\SpaceInvitation;
 use App\Models\SpaceMember;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class SpaceInvitationTest extends TestCase
@@ -17,6 +20,8 @@ class SpaceInvitationTest extends TestCase
 
     public function test_owner_can_invite_user_to_shared_space(): void
     {
+        Event::fake([InvitationCreated::class]);
+
         $owner = User::factory()->create();
         $invitee = User::factory()->create(['email' => 'friend@example.com']);
 
@@ -46,10 +51,17 @@ class SpaceInvitationTest extends TestCase
             'invited_user_id' => $invitee->user_id,
             'status' => 'pending',
         ]);
+
+        Event::assertDispatched(InvitationCreated::class, function (InvitationCreated $event) use ($invitee) {
+            return (int) $event->invitation->invited_user_id === (int) $invitee->user_id
+                && $event->broadcastAs() === 'invitation.created';
+        });
     }
 
     public function test_invitee_can_accept_invitation(): void
     {
+        Event::fake([InvitationUpdated::class]);
+
         $owner = User::factory()->create();
         $invitee = User::factory()->create();
 
@@ -84,5 +96,10 @@ class SpaceInvitationTest extends TestCase
             'user_id' => $invitee->user_id,
             'role' => 'member',
         ]);
+
+        Event::assertDispatched(InvitationUpdated::class, function (InvitationUpdated $event) {
+            return $event->broadcastAs() === 'invitation.updated'
+                && $event->invitation->status->value === 'accepted';
+        });
     }
 }

@@ -6,6 +6,8 @@ use App\Enums\InvitationStatus;
 use App\Enums\NotificationType;
 use App\Enums\SpaceMemberRole;
 use App\Enums\SpaceType;
+use App\Events\InvitationCreated;
+use App\Events\InvitationUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSpaceInvitationRequest;
 use App\Models\AppNotification;
@@ -78,6 +80,10 @@ class SpaceInvitationController extends Controller
             'status' => InvitationStatus::Pending,
         ]);
 
+        $invitation->load(['space:space_id,name,type', 'invitedUser:user_id,name,email', 'inviter:user_id,name,email']);
+
+        InvitationCreated::dispatch($invitation);
+
         AppNotification::create([
             'user_id' => $invitee->getKey(),
             'title' => 'Space invitation',
@@ -88,7 +94,7 @@ class SpaceInvitationController extends Controller
 
         return response()->json([
             'message' => 'Invitation sent successfully.',
-            'data' => $invitation->load(['space:space_id,name,type', 'invitedUser:user_id,name,email']),
+            'data' => $invitation,
         ], 201);
     }
 
@@ -128,9 +134,12 @@ class SpaceInvitationController extends Controller
             ]);
         });
 
+        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:user_id,name,email', 'invitedUser:user_id,name,email']);
+        InvitationUpdated::dispatch($invitation);
+
         return response()->json([
             'message' => 'Invitation accepted.',
-            'data' => $invitation->fresh()->load('space:space_id,name,type'),
+            'data' => $invitation,
         ]);
     }
 
@@ -149,6 +158,17 @@ class SpaceInvitationController extends Controller
         }
 
         $invitation->update(['status' => InvitationStatus::Declined]);
+
+        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:user_id,name,email', 'invitedUser:user_id,name,email']);
+        InvitationUpdated::dispatch($invitation);
+
+        AppNotification::create([
+            'user_id' => $invitation->invited_by,
+            'title' => 'Invitation declined',
+            'message' => sprintf('%s declined the invite to %s.', $user->name, $invitation->space->name),
+            'type' => NotificationType::System,
+            'is_read' => false,
+        ]);
 
         return response()->json([
             'message' => 'Invitation declined.',
