@@ -4,7 +4,7 @@ Laravel API for a savings / money-pool app (“spaces”): personal or shared po
 
 ## Stack
 
-- PHP 8.3
+- PHP 8.4
 - Laravel 13
 - Laravel Sanctum (token auth)
 - Laravel Reverb (WebSocket push — no polling)
