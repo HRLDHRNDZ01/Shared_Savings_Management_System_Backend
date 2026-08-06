@@ -9,6 +9,7 @@ echo "Starting SSMS API..."
 echo "DB_CONNECTION=${DB_CONNECTION:-}"
 echo "PORT=${PORT:-8000}"
 
+php artisan package:discover --ansi || true
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear

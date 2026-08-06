@@ -18,12 +18,17 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 COPY . .
-RUN composer dump-autoload --optimize \
-    && php artisan package:discover --ansi \
+
+# Do NOT run `php artisan` here — no APP_KEY/.env during image build on Render.
+RUN composer dump-autoload --optimize --no-scripts \
     && chmod +x bin/render-start.sh bin/render-build.sh \
-    && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwx storage bootstrap/cache
+    && mkdir -p \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache
 
 ENV PORT=10000
 EXPOSE 10000
