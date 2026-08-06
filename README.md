@@ -104,6 +104,63 @@ Admins manage **user groups** and tick which sidebar pages each group can see.
 - Regular users get menus from their **one** assigned group.
 - Seed: `SidebarAccessSeeder` creates menus + `Standard User` group.
 
+## Free live deploy (test)
+
+Recommended free stack:
+- **Backend + DB:** [Render](https://render.com) (`render.yaml` included)
+- **Frontend:** [Cloudflare Pages](https://pages.cloudflare.com) or Vercel
+- **Realtime:** off on free (`BROADCAST_CONNECTION=log`) — use `GET /api/notifications`
+
+### 1) Push backend
+
+```bash
+git add .
+git commit -m "Prepare free Render deploy and CORS."
+git push -u origin feature/user-group-sidebar-access
+```
+
+### 2) Render (API)
+
+1. Open https://dashboard.render.com → **New** → **Blueprint**
+2. Connect this GitHub repo + branch `feature/user-group-sidebar-access`
+3. Apply `render.yaml` (creates `ssms-api` + free Postgres)
+4. Set env vars:
+   - `APP_URL` = `https://ssms-api.onrender.com` (your real Render URL)
+   - `FRONTEND_URL` = `https://YOUR-FRONTEND.pages.dev` (add after step 3)
+5. Wait for deploy → open `/api/health`
+6. Default seeded logins (first boot only):
+   - `admin@example.com` / `password`
+   - `user@example.com` / `password`
+
+### 3) Frontend (Cloudflare Pages)
+
+In `frontend_ssms`:
+
+```bash
+# .env.production
+VITE_API_BASE_URL=https://ssms-api.onrender.com
+```
+
+```bash
+npm run build
+```
+
+Cloudflare Pages settings:
+- Build command: `npm run build`
+- Output: `dist`
+- Env: `VITE_API_BASE_URL=https://ssms-api.onrender.com`
+
+Then update Render `FRONTEND_URL` to your Pages URL and redeploy API (or just update env).
+
+### 4) Smoke test
+
+1. Open frontend URL → register/login  
+2. Create space / deposit  
+3. Admin → Maintenance (sidebar access)  
+4. Expect: API works; **instant push may not** on free (Reverb off)
+
+Free Render web services **sleep** after idle — first request can be slow.
+
 ## Getting started
 
 ```bash
