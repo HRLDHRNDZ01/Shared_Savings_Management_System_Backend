@@ -4,7 +4,7 @@ Laravel API for a savings / money-pool app (“spaces”): personal or shared po
 
 ## Stack
 
-- PHP 8.3
+- PHP 8.4
 - Laravel 13
 - Laravel Sanctum (token auth)
 - Laravel Reverb (WebSocket push — no polling)
@@ -107,8 +107,8 @@ Admins manage **user groups** and tick which sidebar pages each group can see.
 ## Free live deploy (test)
 
 Recommended free stack:
-- **Backend + DB:** [Render](https://render.com) (`render.yaml` included)
-- **Frontend:** [Cloudflare Pages](https://pages.cloudflare.com) or Vercel
+- **Backend + DB:** [Render](https://render.com) (`render.yaml` + `Dockerfile` — PHP is deployed via **Docker**)
+- **Frontend:** [Vercel](https://vercel.com) or Cloudflare Pages
 - **Realtime:** off on free (`BROADCAST_CONNECTION=log`) — use `GET /api/notifications`
 
 ### 1) Push backend
