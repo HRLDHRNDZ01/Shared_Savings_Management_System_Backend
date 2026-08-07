@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Uses direct creates (no factories) so production `composer --no-dev`
+     * deploys work without fakerphp/faker.
      */
     public function run(): void
     {
@@ -23,19 +26,26 @@ class DatabaseSeeder extends Seeder
             ->where('name', 'Standard User')
             ->value('user_group_id');
 
-        User::factory()->admin()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => 'password',
-            'user_group_id' => null,
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => 'password',
+                'role' => Role::Admin,
+                'user_group_id' => null,
+                'email_verified_at' => now(),
+            ],
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'user@example.com',
-            'password' => 'password',
-            'role' => Role::User,
-            'user_group_id' => $standardGroupId,
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => 'password',
+                'role' => Role::User,
+                'user_group_id' => $standardGroupId,
+                'email_verified_at' => now(),
+            ],
+        );
     }
 }
