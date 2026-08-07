@@ -1,7 +1,7 @@
 databases:
   - name: ssms-db
     plan: free
-    region: singapore
+    region: oregon
     databaseName: ssms
     user: ssms
 
@@ -10,7 +10,7 @@ services:
     name: ssms-api
     runtime: docker
     plan: free
-    region: singapore
+    region: oregon
     dockerfilePath: ./Dockerfile
     dockerCommand: ./bin/render-start.sh
     healthCheckPath: /api/health
