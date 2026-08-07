@@ -104,73 +104,109 @@ Admins manage **user groups** and tick which sidebar pages each group can see.
 - Regular users get menus from their **one** assigned group.
 - Seed: `SidebarAccessSeeder` creates menus + `Standard User` group.
 
+## Getting started (local)
+
+**Needs:** Docker Desktop (WSL2 OK) + Git. PHP on the host is optional if you use Sail for everything.
+
+```bash
+git clone <this-repo-url>
+cd backend_ssms
+cp .env.example .env
+```
+
+Edit `.env` for local (do **not** commit `.env`):
+
+```env
+APP_ENV=local
+APP_URL=http://localhost
+FRONTEND_URL=http://localhost:5173
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=ssms
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+Then:
+
+```bash
+docker run --rm -v "$(pwd):/var/www/html" -w /var/www/html composer:2 composer install
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --force
+./vendor/bin/sail artisan db:seed --force
+```
+
+- API (Sail): http://localhost  
+- Health: http://localhost/api/health  
+- Reverb (optional realtime): `./vendor/bin/sail artisan reverb:start`
+
+### Local DB in Heidi / DBeaver (from Windows)
+
+| Field | Value |
+|--------|--------|
+| Type | MySQL |
+| Host | `127.0.0.1` (not `mysql`) |
+| Port | `3306` |
+| Database | `ssms` |
+| User | `sail` |
+| Password | `password` |
+
+### Seeded logins
+
+- `admin@example.com` / `password`
+- `user@example.com` / `password`
+
+API routes: `routes/api.php`. Postman: `postman/`.
+
 ## Free live deploy (test)
 
 Recommended free stack:
-- **Backend + DB:** [Render](https://render.com) (`render.yaml` + `Dockerfile` — PHP is deployed via **Docker**)
-- **Frontend:** [Vercel](https://vercel.com) or Cloudflare Pages
+- **Backend + DB:** [Render](https://render.com) (`render.yaml` + `Dockerfile` — PHP via **Docker**)
+- **Frontend:** [Vercel](https://vercel.com) (add `vercel.json` SPA rewrites on the FE repo)
 - **Realtime:** off on free (`BROADCAST_CONNECTION=log`) — use `GET /api/notifications`
 
-### 1) Push backend
+### 1) Push backend (`main`)
 
 ```bash
-git add .
-git commit -m "Prepare free Render deploy and CORS."
-git push -u origin feature/user-group-sidebar-access
+git push -u origin main
 ```
 
-### 2) Render (API)
+### 2) Render (API + Postgres)
 
-1. Open https://dashboard.render.com → **New** → **Blueprint**
-2. Connect this GitHub repo + branch `feature/user-group-sidebar-access`
-3. Apply `render.yaml` (creates `ssms-api` + free Postgres)
-4. Set env vars:
-   - `APP_URL` = `https://ssms-api.onrender.com` (your real Render URL)
-   - `FRONTEND_URL` = `https://shared-savings-management-system-fr.vercel.app`
-5. Wait for deploy → open `/api/health`
-6. Default seeded logins (first boot only):
+1. https://dashboard.render.com → **New** → **Blueprint**
+2. Connect this GitHub repo + branch **`main`**
+3. Apply `render.yaml` → creates `ssms-api` + `ssms-db` (same region, e.g. Oregon)
+4. Set env on **ssms-api**:
+   - `APP_KEY` = Laravel key (`php artisan key:generate --show` → must start with `base64:`)
+   - `APP_URL` = your Render URL (e.g. `https://ssms-api-xxxxx.onrender.com`)
+   - `FRONTEND_URL` = your Vercel origin (e.g. `https://shared-savings-management-system-fr.vercel.app`)
+5. Open `/api/health` (not `/` — root may 500; API-only is fine)
+6. First boot seeds:
    - `admin@example.com` / `password`
    - `user@example.com` / `password`
 
-### 3) Frontend (Cloudflare Pages)
+**Notes**
+- Render `generateValue` for `APP_KEY` is **not** a valid Laravel key — set `base64:…` yourself.
+- Free web services **sleep** when idle; first request can be slow.
+- Prod DB: Render → `ssms-db` → **External Database URL** + SSL (Postgres, not MySQL).
 
-In `frontend_ssms`:
+### 3) Frontend (Vercel)
+
+In `frontend_ssms` env:
 
 ```bash
-# .env.production
-VITE_API_BASE_URL=https://ssms-api.onrender.com
+VITE_API_BASE_URL=https://YOUR-RENDER-API.onrender.com
 ```
 
-```bash
-npm run build
-```
-
-Cloudflare Pages settings:
-- Build command: `npm run build`
-- Output: `dist`
-- Env: `VITE_API_BASE_URL=https://ssms-api.onrender.com`
-
-Then update Render `FRONTEND_URL` to your Pages URL and redeploy API (or just update env).
+Include `vercel.json` rewrites to `index.html` for Vue router paths (`/login`, `/register`, etc.).
 
 ### 4) Smoke test
 
-1. Open frontend URL → register/login  
+1. Open frontend → register/login  
 2. Create space / deposit  
-3. Admin → Maintenance (sidebar access)  
-4. Expect: API works; **instant push may not** on free (Reverb off)
+3. Admin → Maintenance  
+4. Instant WebSocket push may be off on free Render  
 
-Free Render web services **sleep** after idle — first request can be slow.
-
-## Getting started
-
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-# set REVERB_APP_KEY / REVERB_APP_SECRET (or copy from a working .env)
-php artisan migrate
-./vendor/bin/sail up -d
-./vendor/bin/sail artisan reverb:start
-```
-
-API routes are defined in `routes/api.php`.
+Local `.env` stays on your machine; prod uses Render Environment only — never commit secrets.
