@@ -126,7 +126,7 @@ git push -u origin feature/user-group-sidebar-access
 3. Apply `render.yaml` (creates `ssms-api` + free Postgres)
 4. Set env vars:
    - `APP_URL` = `https://ssms-api.onrender.com` (your real Render URL)
-   - `FRONTEND_URL` = `https://YOUR-FRONTEND.pages.dev` (add after step 3)
+   - `FRONTEND_URL` = `https://shared-savings-management-system-fr.vercel.app`
 5. Wait for deploy → open `/api/health`
 6. Default seeded logins (first boot only):
    - `admin@example.com` / `password`
