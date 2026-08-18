@@ -123,10 +123,12 @@ git push -u origin feature/user-group-sidebar-access
 
 1. Open https://dashboard.render.com → **New** → **Blueprint**
 2. Connect this GitHub repo + branch `feature/user-group-sidebar-access`
-3. Apply `render.yaml` (creates `ssms-api` + free Postgres)
+3. Apply `render.yaml` (creates `ssms-api` in the `singapore` region)
 4. Set env vars:
    - `APP_URL` = `https://ssms-api.onrender.com` (your real Render URL)
    - `FRONTEND_URL` = `https://shared-savings-management-system-fr.vercel.app`
+   - `DATABASE_URL` = your external PostgreSQL connection string
+   - `DB_URL` = same PostgreSQL connection string
 5. Wait for deploy → open `/api/health`
 6. Default seeded logins (first boot only):
    - `admin@example.com` / `password`
