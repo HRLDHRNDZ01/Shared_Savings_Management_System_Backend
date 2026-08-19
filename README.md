@@ -131,8 +131,8 @@ git push -u origin feature/user-group-sidebar-access
    - `DB_URL` = same PostgreSQL connection string
 5. Wait for deploy → open `/api/health`
 6. Default seeded logins (first boot only):
-   - `admin@example.com` / `password`
-   - `user@example.com` / `password`
+   - `admin` / `password`
+   - `user` / `password`
 
 ### 3) Frontend (Cloudflare Pages)
 

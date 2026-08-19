@@ -8,6 +8,7 @@ use App\Enums\SpaceType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSpaceRequest;
 use App\Models\Space;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +77,7 @@ class SpaceController extends Controller
         }
 
         $members = $space->members()
-            ->with('user:user_id,name,email,contact_number,role')
+            ->with('user:'.User::PUBLIC_COLUMNS)
             ->orderBy('role')
             ->get()
             ->map(fn ($member) => [

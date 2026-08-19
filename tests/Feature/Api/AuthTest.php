@@ -21,7 +21,9 @@ class AuthTest extends TestCase
     public function test_user_can_register(): void
     {
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Test User',
+            'username' => 'testuser',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
@@ -29,12 +31,20 @@ class AuthTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('data.user.role', 'user')
+            ->assertJsonPath('data.user.username', 'testuser')
+            ->assertJsonPath('data.user.first_name', 'Test')
+            ->assertJsonPath('data.user.last_name', 'User')
+            ->assertJsonPath('data.user.name', 'Test User')
             ->assertJsonStructure([
                 'message',
-                'data' => ['user' => ['user_id', 'name', 'email', 'role'], 'token', 'token_type'],
+                'data' => ['user' => ['user_id', 'username', 'first_name', 'last_name', 'name', 'email', 'role'], 'token', 'token_type'],
             ]);
 
         $this->assertDatabaseHas('tbl_users', [
+            'username' => 'testuser',
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'name' => 'Test User',
             'email' => 'test@example.com',
             'role' => 'user',
         ]);
@@ -62,24 +72,25 @@ class AuthTest extends TestCase
     public function test_user_can_login_and_access_me(): void
     {
         $user = User::factory()->create([
+            'username' => 'testuser',
             'email' => 'test@example.com',
             'password' => 'password',
         ]);
 
         $login = $this->postJson('/api/auth/login', [
-            'email' => 'test@example.com',
+            'username' => 'testuser',
             'password' => 'password',
         ]);
 
         $login->assertOk()
-            ->assertJsonPath('data.user.email', $user->email);
+            ->assertJsonPath('data.user.username', $user->username);
 
         $token = $login->json('data.token');
 
         $this->withToken($token)
             ->getJson('/api/auth/me')
             ->assertOk()
-            ->assertJsonPath('data.email', $user->email);
+            ->assertJsonPath('data.username', $user->username);
     }
 
     public function test_user_can_logout(): void
@@ -99,22 +110,32 @@ class AuthTest extends TestCase
     public function test_user_can_update_profile(): void
     {
         $user = User::factory()->create([
-            'name' => 'Old Name',
+            'username' => 'olduser',
+            'first_name' => 'Old',
+            'last_name' => 'Name',
             'email' => 'old@example.com',
             'password' => 'password',
         ]);
 
         $this->actingAs($user)
             ->putJson('/api/auth/profile', [
-                'name' => 'New Name',
+                'username' => 'newuser',
+                'first_name' => 'New',
+                'last_name' => 'Name',
                 'email' => 'new@example.com',
             ])
             ->assertOk()
+            ->assertJsonPath('data.username', 'newuser')
+            ->assertJsonPath('data.first_name', 'New')
+            ->assertJsonPath('data.last_name', 'Name')
             ->assertJsonPath('data.name', 'New Name')
             ->assertJsonPath('data.email', 'new@example.com');
 
         $this->assertDatabaseHas('tbl_users', [
             'user_id' => $user->user_id,
+            'username' => 'newuser',
+            'first_name' => 'New',
+            'last_name' => 'Name',
             'name' => 'New Name',
             'email' => 'new@example.com',
         ]);

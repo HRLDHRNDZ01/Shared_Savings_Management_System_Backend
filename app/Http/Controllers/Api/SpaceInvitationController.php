@@ -25,7 +25,7 @@ class SpaceInvitationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $invitations = SpaceInvitation::query()
-            ->with(['space:space_id,name,type', 'inviter:user_id,name,email'])
+            ->with(['space:space_id,name,type', 'inviter:'.User::PUBLIC_COLUMNS])
             ->where('invited_user_id', $request->user()->getKey())
             ->where('status', InvitationStatus::Pending)
             ->latest()
@@ -80,7 +80,7 @@ class SpaceInvitationController extends Controller
             'status' => InvitationStatus::Pending,
         ]);
 
-        $invitation->load(['space:space_id,name,type', 'invitedUser:user_id,name,email', 'inviter:user_id,name,email']);
+        $invitation->load(['space:space_id,name,type', 'invitedUser:'.User::PUBLIC_COLUMNS, 'inviter:'.User::PUBLIC_COLUMNS]);
 
         InvitationCreated::dispatch($invitation);
 
@@ -134,7 +134,7 @@ class SpaceInvitationController extends Controller
             ]);
         });
 
-        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:user_id,name,email', 'invitedUser:user_id,name,email']);
+        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:'.User::PUBLIC_COLUMNS, 'invitedUser:'.User::PUBLIC_COLUMNS]);
         InvitationUpdated::dispatch($invitation);
 
         return response()->json([
@@ -159,7 +159,7 @@ class SpaceInvitationController extends Controller
 
         $invitation->update(['status' => InvitationStatus::Declined]);
 
-        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:user_id,name,email', 'invitedUser:user_id,name,email']);
+        $invitation = $invitation->fresh()->load(['space:space_id,name,type', 'inviter:'.User::PUBLIC_COLUMNS, 'invitedUser:'.User::PUBLIC_COLUMNS]);
         InvitationUpdated::dispatch($invitation);
 
         AppNotification::create([

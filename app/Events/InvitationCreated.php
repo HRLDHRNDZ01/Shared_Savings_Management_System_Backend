@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\SpaceInvitation;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -17,8 +18,8 @@ class InvitationCreated implements ShouldBroadcastNow
     {
         $this->invitation->loadMissing([
             'space:space_id,name,type',
-            'inviter:user_id,name,email',
-            'invitedUser:user_id,name,email',
+            'inviter:'.User::PUBLIC_COLUMNS,
+            'invitedUser:'.User::PUBLIC_COLUMNS,
         ]);
     }
 

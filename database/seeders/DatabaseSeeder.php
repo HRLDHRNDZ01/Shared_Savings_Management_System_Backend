@@ -27,9 +27,11 @@ class DatabaseSeeder extends Seeder
             ->value('user_group_id');
 
         User::query()->firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['username' => 'admin'],
             [
-                'name' => 'Admin',
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin@example.com',
                 'password' => 'password',
                 'role' => Role::Admin,
                 'user_group_id' => null,
@@ -38,9 +40,11 @@ class DatabaseSeeder extends Seeder
         );
 
         User::query()->firstOrCreate(
-            ['email' => 'user@example.com'],
+            ['username' => 'user'],
             [
-                'name' => 'Test User',
+                'first_name' => 'Test',
+                'last_name' => 'User',
+                'email' => 'user@example.com',
                 'password' => 'password',
                 'role' => Role::User,
                 'user_group_id' => $standardGroupId,
