@@ -83,7 +83,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Harold\",\n  \"email\": \"harold@test.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}"
+              "raw": "{\n  \"username\": \"harold\",\n  \"first_name\": \"Harold\",\n  \"last_name\": \"Hernandez\",\n  \"email\": \"harold@test.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}"
             },
             "url": "{{base_url}}/api/auth/register"
           }
@@ -122,7 +122,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"
             },
             "url": "{{base_url}}/api/auth/login"
           }
@@ -156,7 +156,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Harold Updated\",\n  \"email\": \"harold@test.com\"\n}"
+              "raw": "{\n  \"username\": \"harold\",\n  \"first_name\": \"Harold\",\n  \"last_name\": \"Updated\",\n  \"email\": \"harold@test.com\"\n}"
             },
             "url": "{{base_url}}/api/auth/profile"
           }

@@ -42,7 +42,7 @@ class UserGroupController extends Controller
 
         return response()->json([
             'message' => 'User group created.',
-            'data' => $group->load(['sidebarMenus', 'users:user_id,name,email,user_group_id']),
+            'data' => $group->load(['sidebarMenus', 'users:user_id,username,first_name,last_name,name,email,user_group_id']),
         ], 201);
     }
 
@@ -51,7 +51,7 @@ class UserGroupController extends Controller
         return response()->json([
             'data' => $userGroup->load([
                 'sidebarMenus',
-                'users:user_id,name,email,role,user_group_id',
+                'users:user_id,username,first_name,last_name,name,email,role,user_group_id',
             ]),
         ]);
     }
@@ -117,13 +117,16 @@ class UserGroupController extends Controller
             ->when($request->filled('q'), function ($query) use ($request) {
                 $q = '%'.$request->string('q')->toString().'%';
                 $query->where(function ($inner) use ($q) {
-                    $inner->where('name', 'like', $q)
+                    $inner->where('username', 'like', $q)
+                        ->orWhere('first_name', 'like', $q)
+                        ->orWhere('last_name', 'like', $q)
+                        ->orWhere('name', 'like', $q)
                         ->orWhere('email', 'like', $q);
                 });
             })
             ->orderBy('name')
             ->limit(100)
-            ->get(['user_id', 'name', 'email', 'role', 'user_group_id']);
+            ->get(['user_id', 'username', 'first_name', 'last_name', 'name', 'email', 'role', 'user_group_id']);
 
         return response()->json([
             'data' => $users,

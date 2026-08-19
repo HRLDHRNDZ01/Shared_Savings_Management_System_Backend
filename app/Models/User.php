@@ -14,18 +14,35 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'contact_number', 'password', 'role', 'user_group_id'])]
+#[Fillable(['username', 'first_name', 'last_name', 'email', 'contact_number', 'password', 'role', 'user_group_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const PUBLIC_COLUMNS = 'user_id,username,first_name,last_name,name,email,contact_number,role';
+
     protected $table = 'tbl_users';
 
     protected $primaryKey = 'user_id';
+
+    protected static function booted(): void
+    {
+        static::saving(function (User $user): void {
+            if (filled($user->username)) {
+                $user->username = Str::lower(trim((string) $user->username));
+            }
+
+            $user->name = trim(implode(' ', array_filter([
+                $user->first_name,
+                $user->last_name,
+            ], fn ($part) => filled($part))));
+        });
+    }
 
     protected function casts(): array
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
@@ -13,6 +14,15 @@ class UpdateProfileRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('username')) {
+            $this->merge([
+                'username' => Str::lower(trim((string) $this->input('username'))),
+            ]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -21,7 +31,17 @@ class UpdateProfileRequest extends FormRequest
         $userId = $this->user()?->getKey();
 
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'username' => [
+                'sometimes',
+                'required',
+                'string',
+                'alpha_dash',
+                'min:3',
+                'max:50',
+                Rule::unique('tbl_users', 'username')->ignore($userId, 'user_id'),
+            ],
+            'first_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:255'],
             'email' => [
                 'sometimes',
                 'required',

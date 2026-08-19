@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class NotificationController extends Controller
         $notifications = $request->user()
             ->appNotifications()
             ->with([
-                'actor:user_id,name,email',
+                'actor:'.User::PUBLIC_COLUMNS,
                 'space:space_id,name,type',
             ])
             ->latest()

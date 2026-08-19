@@ -19,10 +19,13 @@ class UserController extends Controller
         $currentUserId = $request->user()->getKey();
 
         $users = User::query()
-            ->select(['user_id', 'name', 'email', 'contact_number', 'role'])
+            ->select(['user_id', 'username', 'first_name', 'last_name', 'name', 'email', 'contact_number', 'role'])
             ->where('user_id', '!=', $currentUserId)
             ->where(function ($builder) use ($query) {
-                $builder->where('name', 'like', "%{$query}%")
+                $builder->where('username', 'like', "%{$query}%")
+                    ->orWhere('first_name', 'like', "%{$query}%")
+                    ->orWhere('last_name', 'like', "%{$query}%")
+                    ->orWhere('name', 'like', "%{$query}%")
                     ->orWhere('email', 'like', "%{$query}%");
             })
             ->orderBy('name')

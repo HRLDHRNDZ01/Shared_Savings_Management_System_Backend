@@ -12,16 +12,16 @@ class UserSearchTest extends TestCase
 
     public function test_user_can_search_other_users(): void
     {
-        $me = User::factory()->create(['name' => 'Harold']);
-        User::factory()->create(['name' => 'Danica Cochoco', 'email' => 'danica@example.com']);
-        User::factory()->create(['name' => 'Other Person', 'email' => 'other@example.com']);
+        $me = User::factory()->create(['first_name' => 'Harold', 'last_name' => 'Hernandez']);
+        User::factory()->create(['first_name' => 'Danica', 'last_name' => 'Cochoco', 'email' => 'danica@example.com']);
+        User::factory()->create(['first_name' => 'Other', 'last_name' => 'Person', 'email' => 'other@example.com']);
 
         $this->actingAs($me)
             ->getJson('/api/users/search?q=Danica')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'Danica Cochoco')
-            ->assertJsonMissing(['name' => 'Harold']);
+            ->assertJsonMissing(['name' => 'Harold Hernandez']);
     }
 
     public function test_search_requires_query(): void

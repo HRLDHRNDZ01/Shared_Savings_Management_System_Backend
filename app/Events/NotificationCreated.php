@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\AppNotification;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -16,7 +17,7 @@ class NotificationCreated implements ShouldBroadcastNow
     public function __construct(public AppNotification $notification)
     {
         $this->notification->loadMissing([
-            'actor:user_id,name,email',
+            'actor:'.User::PUBLIC_COLUMNS,
             'space:space_id,name,type',
         ]);
     }
