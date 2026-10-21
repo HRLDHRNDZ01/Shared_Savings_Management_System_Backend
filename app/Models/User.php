@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['username', 'first_name', 'last_name', 'email', 'contact_number', 'password', 'role', 'user_group_id'])]
+#[Fillable(['username', 'first_name', 'last_name', 'name', 'email', 'contact_number', 'password', 'role', 'user_group_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
