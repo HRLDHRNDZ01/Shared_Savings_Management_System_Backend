@@ -162,6 +162,54 @@
           }
         },
         {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"harold@test.com\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"harold@test.com\",\n  \"token\": \"paste-token-from-email\",\n  \"password\": \"new-password\",\n  \"password_confirmation\": \"new-password\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/reset-password"
+          }
+        },
+        {
           "name": "Logout",
           "event": [
             {
