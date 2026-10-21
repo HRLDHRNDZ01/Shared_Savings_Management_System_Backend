@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         User::query()->firstOrCreate(
             ['username' => 'admin'],
             [
+                'name' => 'Admin User',
                 'first_name' => 'Admin',
                 'last_name' => 'User',
                 'email' => 'admin@example.com',
@@ -42,6 +43,7 @@ class DatabaseSeeder extends Seeder
         User::query()->firstOrCreate(
             ['username' => 'user'],
             [
+                'name' => 'Test User',
                 'first_name' => 'Test',
                 'last_name' => 'User',
                 'email' => 'user@example.com',
